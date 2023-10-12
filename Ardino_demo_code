@@ -1,0 +1,23 @@
+int solenoidPin = 2;
+int buzzerPin = 3;
+
+void setup() {
+  pinMode(solenoidPin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  if (Serial.available()>0 ) {
+    String command = Serial.readStringUntil('\n');
+
+    if (command == "lock") {
+      digitalWrite(solenoidPin, LOW);
+      tone(buzzerPin, 1000);
+      delay(1000);
+      digitalWrite(solenoidPin, HIGH);
+      noTone(buzzerPin);
+      Serial.println("Locking complete");
+    }
+  }
+}
