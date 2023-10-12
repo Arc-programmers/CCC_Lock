@@ -49,6 +49,21 @@ void access(int a){
             delay(DENIED_DELAY);
   }
 }
+
+void checkBT(){
+  if(Serial.available()){
+    char info = Serial.read();
+    if(info == '!'){
+      Serial.println("Someone opened door through bluetooth");
+      access(1);
+    }
+    else{
+      Serial.println("Wrong password");
+      access(2);
+    }
+  }
+}
+
 void setup() 
 {
   Serial.begin(9600);   // Initiate a serial communication
@@ -58,6 +73,7 @@ void setup()
   pinMode(buzzer, OUTPUT);digitalWrite(buzzer, LOW);
   WiFi.begin(wifiName, password);
  while (WiFi.status() != WL_CONNECTED) {
+    checkBT();
     digitalWrite(LED_G, HIGH);
     delay(500);
     Serial.println("Connecting to WiFi...");
@@ -74,17 +90,7 @@ void setup()
 }
 void loop() 
 {
-  if(Serial.available()){
-    char info = Serial.read();
-    if(info == '!'){
-      Serial.println("Someone opened door through bluetooth");
-      access(1);
-    }
-    else{
-      Serial.println("Wrong password");
-      access(2);
-    }
-  }
+  checkBT();
   String state = Firebase.getString("lock");
   if(state == "open"){
     Serial.println("Someone opened door");
@@ -92,6 +98,7 @@ void loop()
     Firebase.setString("lock","close");
   }
   while(WiFi.status() != WL_CONNECTED){
+    checkBT();
     Serial.println("Wifi disconnected");
     flag=true;
     digitalWrite(LED_G, HIGH);
